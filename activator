@@ -1,0 +1,4 @@
+#!/bin/bash
+DOCKER_IMAGE="obszczymucha/activator"
+docker pull ${DOCKER_IMAGE}
+docker run -it -v $(pwd):/root --volumes-from sbt-cache ${DOCKER_IMAGE} activator "$@"

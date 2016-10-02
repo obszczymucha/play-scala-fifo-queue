@@ -1,0 +1,27 @@
+A sample Scala + Play app that uses FIFO queue as cache implementation
+======================================================================
+
+Features
+--------
+
+ * Scala
+ * Play
+ * FIFO queue as cache (implemented using ConcurrentLinkedDeque)
+ * scheduled jobs + akka (cache item creation / cleanup)
+
+How does it work?
+-----------------
+
+1. The service exposes one HTTP GET endpoint at http://localhost:9000/main
+2. Successful call should return 200 and an UUID in the body. The UUID is a value stored in the cache.
+3. If there is nothing in the cache, the service returns 503 (Unavailable).
+4. There are two background processes that operate on the cache, they run as scheduled jobs:
+   * One runs every 2 seconds and checks if the last item in the queue is about to expire (expiration time - 3 seconds),
+     if so it creates a new one. Each newly created item is put in the queue with expiration time of 10 seconds.
+   * One runs every 1 second and checks if the first item in the queue is expired, if so it removes it from the cache.
+5. Both scheduled jobs use a separate execution context (see application.conf -> Contexts). The idea is explained there.
+
+How to run
+----------
+
+  Run ApplicationSpec test in IDE or via command line: ./activator test
